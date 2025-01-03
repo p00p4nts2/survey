@@ -134,6 +134,7 @@
         <p><strong>Age:</strong> <span id="display-age"></span></p>
         <p><strong>Sex:</strong> <span id="display-sex"></span></p>
         <p><strong>IP Address:</strong> <span id="display-ip"></span></p>
+        <p id="warning-message" class="warning"></p> <!-- Warning message section -->
     </div>
 
     <div id="logout-message" class="logout-message" style="display: none;">
@@ -141,6 +142,9 @@
     </div>
     
     <script>
+        // Array of bad words (for demonstration purposes, can be expanded)
+        const badWords = ["badword1", "badword2", "example", "curse", "offensive"];
+
         // Function to fetch the IP address using ipify API
         async function getIpAddress() {
             try {
@@ -153,21 +157,50 @@
             }
         }
 
+        // Function to validate the name input
+        function validateName(name) {
+            // Check if name contains numbers
+            const hasNumbers = /\d/.test(name);
+            if (hasNumbers) {
+                return "Name cannot contain numbers!";
+            }
+
+            // Check if name contains bad words
+            for (let word of badWords) {
+                if (name.toLowerCase().includes(word)) {
+                    return `Name contains inappropriate words!`;
+                }
+            }
+
+            return "";
+        }
+
         // Function to handle the survey submission
         async function submitSurvey() {
             const name = document.getElementById('name').value;
             const age = parseInt(document.getElementById('age').value);
             const sex = document.querySelector('input[name="sex"]:checked');
 
+            let warningMessage = "";  // Variable to store warning message
+            let nameError = validateName(name);  // Validate name
+
+            // If the name is invalid, show the error message
+            if (nameError) {
+                alert(nameError);
+                return;
+            }
+
             // Age validation: Too young or Too old
             if (age < 18) {
-                // Show "You are too young" message
+                // Show "You are too young" message and hide survey form
+                warningMessage = "You are too young to access this site!";
                 document.querySelector('.survey-container').style.display = 'none';
                 document.getElementById('logout-message').style.display = 'block';
                 return;
             } else if (age >= 50) {
-                // Show "You are too old" message
-                alert('You are too old!');
+                // Show "You are too old" message and alert
+                warningMessage = "You are too old!";
+                alert(warningMessage);
                 return;
             }
 
@@ -188,6 +221,11 @@
                 // Fetch IP address and display
                 const ipAddress = await getIpAddress();
                 document.getElementById('display-ip').textContent = ipAddress;
+
+                // If there's a warning message, display it
+                if (warningMessage) {
+                    document.getElementById('warning-message').textContent = warningMessage;
+                }
             } else {
                 alert('Please complete all fields!');
             }
