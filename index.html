@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Survey</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .survey-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="survey-container">
+        <h2>Simple Survey</h2>
+        
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" placeholder="Enter your name" required><br><br>
+
+        <label for="age">Your Age:</label>
+        <input type="number" id="age" placeholder="Enter your age" required><br><br>
+
+        <label>Sex:</label>
+        <input type="radio" id="boy" name="sex" value="Boy" required> Boy
+        <input type="radio" id="girl" name="sex" value="Girl" required> Girl<br><br>
+
+        <p id="warning-message" class="warning hidden">Warning: You are above 50 years old!</p>
+
+        <button id="nextButton" onclick="submitSurvey()">Next</button>
+    </div>
+
+    <div id="result-container" class="hidden">
+        <h3>Thank you for completing the survey!</h3>
+        <p>Your name is: <span id="display-name"></span></p>
+    </div>
+
+    <script>
+        // Function to handle the survey submission
+        function submitSurvey() {
+            // Get user input values
+            const name = document.getElementById('name').value;
+            const age = parseInt(document.getElementById('age').value);
+            const sex = document.querySelector('input[name="sex"]:checked');
+
+            // Check if the name, age, and sex are provided
+            if (name && !isNaN(age) && sex) {
+                // Show warning if the user is above 50 years old
+                if (age > 50) {
+                    document.getElementById('warning-message').classList.remove('hidden');
+                } else {
+                    document.getElementById('warning-message').classList.add('hidden');
+                }
+
+                // Hide the survey and show the result
+                document.querySelector('.survey-container').classList.add('hidden');
+                document.getElementById('result-container').classList.remove('hidden');
+
+                // Display the user's name in the result section
+                document.getElementById('display-name').textContent = name;
+            } else {
+                alert('Please complete all fields!');
+            }
+        }
+    </script>
+
+</body>
+</html>
