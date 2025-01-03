@@ -3,40 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Survey</title>
+    <title>Age Validation Survey</title>
     <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background: #f4f7fc;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 0 15px;
+            flex-direction: column;
         }
 
+        /* Container for survey form */
         .survey-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 450px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #4b8bf5;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="number"], input[type="radio"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+            font-size: 16px;
             border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f9f9f9;
+            border-radius: 5px;
         }
 
-        .warning {
-            color: red;
-            font-weight: bold;
-        }
-
-        .hidden {
-            display: none;
+        input[type="radio"] {
+            width: auto;
         }
 
         button {
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 16px;
+            background: #4b8bf5;
+            color: white;
+            padding: 12px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #3578e5;
+        }
+
+        .warning {
+            color: #d9534f;
+            font-weight: bold;
+            margin-top: 15px;
         }
 
         .result-container {
+            display: none;
             text-align: center;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-container h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .result-container p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        /* Style for the logout message */
+        .logout-message {
+            font-size: 24px;
+            color: #d9534f;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -51,16 +121,14 @@
         <label for="age">Your Age:</label>
         <input type="number" id="age" placeholder="Enter your age" required><br><br>
 
-        <label>Sex:</label>
+        <label>Sex:</label><br>
         <input type="radio" id="boy" name="sex" value="Boy" required> Boy
         <input type="radio" id="girl" name="sex" value="Girl" required> Girl<br><br>
-
-        <p id="warning-message" class="warning hidden">Warning: You are above 50 years old!</p>
 
         <button id="nextButton" onclick="submitSurvey()">Next</button>
     </div>
 
-    <div id="result-container" class="hidden result-container">
+    <div class="result-container" id="result-container">
         <h3>Survey Complete!</h3>
         <p><strong>Name:</strong> <span id="display-name"></span></p>
         <p><strong>Age:</strong> <span id="display-age"></span></p>
@@ -68,6 +136,10 @@
         <p><strong>IP Address:</strong> <span id="display-ip"></span></p>
     </div>
 
+    <div id="logout-message" class="logout-message" style="display: none;">
+        <p>You are too young to access this site!</p>
+    </div>
+    
     <script>
         // Function to fetch the IP address using ipify API
         async function getIpAddress() {
@@ -83,30 +155,37 @@
 
         // Function to handle the survey submission
         async function submitSurvey() {
-            // Get user input values
             const name = document.getElementById('name').value;
             const age = parseInt(document.getElementById('age').value);
             const sex = document.querySelector('input[name="sex"]:checked');
 
-            // Check if the name, age, and sex are provided
+            // Age validation: Too young or Too old
+            if (age < 18) {
+                // Show "You are too young" message
+                document.querySelector('.survey-container').style.display = 'none';
+                document.getElementById('logout-message').style.display = 'block';
+                return;
+            } else if (age >= 50) {
+                // Show "You are too old" message
+                alert('You are too old!');
+                return;
+            }
+
+            // Proceed if age is valid
             if (name && !isNaN(age) && sex) {
-                // Show warning if the user is above 50 years old
-                if (age > 50) {
-                    document.getElementById('warning-message').classList.remove('hidden');
-                } else {
-                    document.getElementById('warning-message').classList.add('hidden');
-                }
+                // Hide survey form
+                document.querySelector('.survey-container').style.display = 'none';
 
-                // Hide the survey and show the result
-                document.querySelector('.survey-container').classList.add('hidden');
-                document.getElementById('result-container').classList.remove('hidden');
+                // Show result container
+                const resultContainer = document.getElementById('result-container');
+                resultContainer.style.display = 'block';
 
-                // Display the user's name, age, and sex in the result section
+                // Display the user's name, age, sex in the result section
                 document.getElementById('display-name').textContent = name;
                 document.getElementById('display-age').textContent = age;
                 document.getElementById('display-sex').textContent = sex.value;
 
-                // Fetch the IP address and display it
+                // Fetch IP address and display
                 const ipAddress = await getIpAddress();
                 document.getElementById('display-ip').textContent = ipAddress;
             } else {
